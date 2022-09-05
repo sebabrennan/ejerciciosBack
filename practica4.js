@@ -14,22 +14,40 @@ const express = require ('express')
 const app = express()
 
 app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+// app.use(express.urlencoded({extended: true}))
 
-const frase = "Frase inicial"
+let palabras = ['Frase', 'inicial']
 
 app.get('/api/frase', (req, res) => {
-    res.send({ frase: frase })
+    res.send({ frase: palabras.join(' ') })
 })
 
 app.get('/api/palabras/:pos', (req, res) => {
     const { pos } = req.params
-    const palabras = frase.split(" ")
     const palabra = palabras[pos - 1]
     res.send({ buscada: palabra})
 })
 
+app.post('/api/palabras', (req, res) => {
+    const { palabra } = req.body
+    palabras.push(palabra)
+    res.send({ agregada: palabra, pos: palabras.length})
+})
 
+app.put("/api/palabras/:pos", (req, res) => {
+    const { pos } = req.params
+    const { palabra } = req.body
+    const anterior = palabras[pos - 1]
+    palabras[pos - 1] = palabra
+    res.send({ actualizada: palabra, anterior })
+})
+
+app.delete("/api/palabras/:pos", (req, res) => {
+    const { pos } = req.params
+    const palabra = palabras[pos-1]
+    palabras = palabras.filter((palabra) => palabra !== palabras[pos - 1])
+    res.send({ eliminada: palabra })
+})  
 
 app.listen(8080, () => {
     console.log("Servidor iniciado")
